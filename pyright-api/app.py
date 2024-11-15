@@ -65,7 +65,7 @@ def _get_versions() -> PyrightResponse:
     pyright = subprocess.run(["/bin/bash", "-c", "pyright --version"], capture_output=True)
 
     return {
-        "python_version": py.stdout.decode().strip(),
+        "python_version": py.stdout.decode().split(" ")[1].strip(),
         "node_version": node.stdout.decode().strip(),
         "pyright_version": pyright.stdout.decode().split(" ")[1].strip(),
     }  # pyright: ignore[reportReturnType]
