@@ -3,7 +3,11 @@ services:
     image: ghcr.io/abstractumbra/pyright-api:latest
     container_name: "pyright"
     restart: unless-stopped
-    env_file:
-      - .env
     ports:
       - "8130:8130"
+    secrets:
+      - api_key
+
+secrets:
+  api_key:
+    file: ./api_key

@@ -1,7 +1,8 @@
+import asyncio
 import json
 import os
 import pathlib
-import subprocess
+import subprocess  # noqa: S404 # sanitized use
 from typing import Any
 
 import orjson
@@ -15,9 +16,16 @@ from litestar.middleware.rate_limit import RateLimitConfig
 from .shell_reader import ShellReader
 from .types_ import PyrightPayload, PyrightResponse
 
-OWNER_TOKEN = os.getenv("API_TOKEN")
-if not OWNER_TOKEN:
-    raise RuntimeError("No API token has been set, exiting.")
+OWNER_TOKEN_FILE = pathlib.Path("/run/secrets/api_key")
+try:
+    _token = OWNER_TOKEN_FILE.read_text("utf8")
+except FileNotFoundError:
+    _token = os.getenv("API_KEY")
+if not _token:
+    raise RuntimeError("API key has not been allocated.")
+
+OWNER_TOKEN = _token
+
 
 PYRIGHT_CONFIG = pathlib.Path() / "pyrightconfig.json"
 if not PYRIGHT_CONFIG.exists():
@@ -60,9 +68,9 @@ def _create_temp_file(content: str) -> pathlib.Path:
 
 
 def _get_versions() -> PyrightResponse:
-    py = subprocess.run(["/bin/bash", "-c", "python -V"], capture_output=True)
-    node = subprocess.run(["/bin/bash", "-c", "node -v"], capture_output=True)
-    pyright = subprocess.run(["/bin/bash", "-c", "pyright --version"], capture_output=True)
+    py = subprocess.run(["/bin/bash", "-c", "python -V"], capture_output=True, check=False)  # noqa: S603
+    node = subprocess.run(["/bin/bash", "-c", "node -v"], capture_output=True, check=False)  # noqa: S603
+    pyright = subprocess.run(["/bin/bash", "-c", "pyright --version"], capture_output=True, check=False)  # noqa: S603
 
     return {
         "python_version": py.stdout.decode().split(" ")[1].strip(),
@@ -75,7 +83,7 @@ class TokenAuthMiddleware(AbstractAuthenticationMiddleware):
     async def authenticate_request(self, connection: ASGIConnection[Any, Any, Any, Any]) -> AuthenticationResult:
         auth_header = connection.headers.get("Authorization")
         if not auth_header or auth_header != OWNER_TOKEN:
-            raise NotAuthorizedException()
+            raise NotAuthorizedException
 
         return AuthenticationResult(user="Owner", auth=auth_header)
 
@@ -106,8 +114,8 @@ async def perform_type_checking(data: PyrightPayload) -> Response[PyrightRespons
 
     try:
         parsed = orjson.loads("".join(stringed))
-    except orjson.JSONDecodeError:
-        raise HTTPException(detail="Unable to parse pyright response", status_code=500)
+    except orjson.JSONDecodeError as err:
+        raise HTTPException(detail="Unable to parse pyright response", status_code=500) from err
 
     result["result"] = parsed
 
@@ -115,8 +123,8 @@ async def perform_type_checking(data: PyrightPayload) -> Response[PyrightRespons
 
 
 @post(path="/update", middleware=[auth_middleware])
-async def update_pyright() -> Response[str]:  # noqa: RUF029
-    proc = subprocess.run(["/bin/bash", "-c", "npm install -g pyright@latest"])
+async def update_pyright() -> Response[str]:
+    proc = await asyncio.create_subprocess_shell("/bin/bash -c npm install -g pyright@latest")
 
     if proc.returncode == 0:
         return Response(content="OK", status_code=201)

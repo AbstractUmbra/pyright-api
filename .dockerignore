@@ -1,6 +1,9 @@
-.venv/
 __pycache__
 .git*
-.env*
-Dockerfile
+.venv/
+api_key
+compose.override.yaml
 docker-compose.yaml
+Dockerfile
+LICENSE
+README.md

@@ -1,3 +1,4 @@
 .venv/
 __pycache__
-.env
+api_key
+compose.override.yaml
