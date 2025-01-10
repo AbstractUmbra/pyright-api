@@ -22,7 +22,8 @@ try:
 except FileNotFoundError:
     _token = os.getenv("API_KEY")
 if not _token:
-    raise RuntimeError("API key has not been allocated.")
+    msg = "API key has not been allocated."
+    raise RuntimeError(msg)
 
 OWNER_TOKEN = _token
 
@@ -30,7 +31,6 @@ OWNER_TOKEN = _token
 PYRIGHT_CONFIG = pathlib.Path() / "pyrightconfig.json"
 if not PYRIGHT_CONFIG.exists():
     PYRIGHT_CONFIG.touch(0o777, exist_ok=True)
-    PYRIGHT_CONFIG.touch()
     with PYRIGHT_CONFIG.open("w") as fp:
         json.dump(
             {
