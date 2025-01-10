@@ -1,6 +1,7 @@
 __pycache__
 .git*
 .venv/
+.pdm-python
 api_key
 compose.override.yaml
 docker-compose.yaml
