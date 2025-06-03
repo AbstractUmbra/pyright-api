@@ -1,6 +1,6 @@
 from typing import Literal, NotRequired, TypedDict
 
-__all__ = ("PyrightPayload", "PyrightResponse")
+__all__ = ("AppVersions", "PyrightPayload", "PyrightResponse")
 
 
 class PyrightSummary(TypedDict):
@@ -41,11 +41,12 @@ class PyrightPayload(TypedDict):
     version: NotRequired[str]
 
 
-class _Versions(TypedDict):
+class AppVersions(TypedDict):
     node_version: str
     pyright_version: str
     python_version: str
+    executed_python_version: NotRequired[str]
 
 
-class PyrightResponse(_Versions):
+class PyrightResponse(AppVersions):
     result: PyrightOutput
