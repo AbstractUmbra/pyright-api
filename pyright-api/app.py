@@ -34,7 +34,7 @@ if not PYRIGHT_CONFIG.exists():
     with PYRIGHT_CONFIG.open("w") as fp:
         json.dump(
             {
-                "pythonVersion": "3.12",
+                "pythonVersion": "3.13",
                 "typeCheckingMode": "strict",
                 "useLibraryCodeForTypes": False,
                 "reportMissingImports": True,
@@ -68,9 +68,9 @@ def _create_temp_file(content: str) -> pathlib.Path:
 
 
 def _get_versions() -> PyrightResponse:
-    py = subprocess.run(["/bin/bash", "-c", "python -V"], capture_output=True, check=False)  # noqa: S603
-    node = subprocess.run(["/bin/bash", "-c", "node -v"], capture_output=True, check=False)  # noqa: S603
-    pyright = subprocess.run(["/bin/bash", "-c", "pyright --version"], capture_output=True, check=False)  # noqa: S603
+    py = subprocess.run(["/bin/bash", "-c", "python -V"], capture_output=True, check=False)
+    node = subprocess.run(["/bin/bash", "-c", "node -v"], capture_output=True, check=False)
+    pyright = subprocess.run(["/bin/bash", "-c", "pyright --version"], capture_output=True, check=False)
 
     return {
         "python_version": py.stdout.decode().split(" ")[1].strip(),
@@ -103,8 +103,9 @@ rl_middleware = RateLimitConfig(
 @post(path="/submit")
 async def perform_type_checking(data: PyrightPayload) -> Response[PyrightResponse]:
     file = _create_temp_file(data["content"])
+    python_ver = data.get("version", "3.13")
 
-    with ShellReader(f"pyright --outputjson {file.name}") as reader:
+    with ShellReader(f"pyright --outputjson {file.name} --pythonversion {python_ver}") as reader:
         lines = [line async for line in reader if not line.startswith("[stderr] ")]
     stringed = "".join(lines)
 

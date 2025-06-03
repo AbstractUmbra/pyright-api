@@ -4,24 +4,19 @@ version = "0.0.1"
 description = "A small RESTful API to run Pyright."
 authors = [{ name = "Alex Nørgaard", email = "umbra@abstractumbra.dev" }]
 dependencies = ["litestar", "uvloop", "uvicorn", "orjson"]
-requires-python = "<4.0,>=3.12"
+requires-python = "<4.0,>=3.13"
 readme = "README.md"
 license = { text = "MIT" }
 
 [dependency-groups]
 dev = ["ruff", "typing-extensions"]
 
-[tool.pdm]
-distribution = false
-
-[tool.pdm.build]
-includes = []
-
 [tool.ruff]
 line-length = 125
 target-version = "py312"
 
 [tool.ruff.lint]
+preview = true
 select = [
     "A",
     "ANN",
@@ -66,23 +61,27 @@ select = [
     "TRY",
     "UP",
     "YTT",
+    # "DOC", # not in a bot, please
 ]
 ignore = [
     "ANN401",
+    "ASYNC109", # dpy commonly uses this parameter
+    "COM812",   # unnecessary since we use the formatter
+    "EM101",    # in this case this is okay
     "F401",
     "F402",
     "F403",
     "F405",
-    "PD011",   # this is not a numpy codebase
+    "PD011",    # this is not a numpy codebase
     "PERF203",
-    "PLC0414", # pyright ruling for `as` imports needed
+    "PLC0414",  # pyright ruling for `as` imports needed
     "Q000",
     "RUF001",
     "RUF009",
-    "S101",    # assert is used for type checking in this codebase
+    "S101",     # assert is used for type checking in this codebase
     "SIM105",
-    "TRY003",  # over-eager rule
-    "TRY301",  # unrealistic rule
+    "TRY003",   # over-eager rule
+    "TRY301",   # unrealistic rule
     "UP034",
     "UP038",
 ]
@@ -131,4 +130,4 @@ inline-quotes = "double"
 [tool.pyright]
 useLibraryCodeForTypes = true
 typeCheckingMode = "strict"
-pythonVersion = "3.12"
+pythonVersion = "3.13"

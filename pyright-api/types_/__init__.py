@@ -1,4 +1,4 @@
-from typing import Literal, TypedDict
+from typing import Literal, NotRequired, TypedDict
 
 __all__ = ("PyrightPayload", "PyrightResponse")
 
@@ -38,6 +38,7 @@ class PyrightOutput(TypedDict):
 
 class PyrightPayload(TypedDict):
     content: str
+    version: NotRequired[str]
 
 
 class _Versions(TypedDict):
