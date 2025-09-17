@@ -45,4 +45,6 @@ WORKDIR /app
 COPY --from=builder --chown=1000:1000 /project /app
 ENV PATH="/app/.venv/bin:$PATH"
 
+EXPOSE ${WEB_PORT:-8130}
+
 CMD [ "python", "-O", "run.py" ]
